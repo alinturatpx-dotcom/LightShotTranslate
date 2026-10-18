@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>LightShotTranslate</AssemblyName>
+    <RootNamespace>LST</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- 按物理像素工作，避免多显示器 / 高 DPI 下截图坐标错位 -->
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <!-- ONNX Runtime 原生库按 x64 提供 -->
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <Version>0.8.1</Version>
+    <FileVersion>0.8.1.0</FileVersion>
+
+    <!-- 任务管理器 / 资源管理器里显示的名称、说明与图标 -->
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyTitle>LightShot Translate</AssemblyTitle>
+    <Product>LightShot Translate</Product>
+    <Description>LightShot Translate + AI 悬浮球 - 截图 / OCR / 原位翻译 / 贴图 / 画笔 / AI 问答</Description>
+    <Company>LightShot Translate</Company>
+    <Copyright>Copyright © 2026</Copyright>
+
+    <!-- 降低常驻内存：不加载 ICU、不开后台 GC 线程、不做 PGO 插桩 -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>false</TieredPGO>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- 悬浮球沿用 C# 5 风格代码并使用 HttpWebRequest：忽略这类过时 / 平台提示（不是错误） -->
+    <NoWarn>$(NoWarn);SYSLIB0014;SYSLIB0021;SYSLIB0022;SYSLIB0023;WFO1000;CA1416</NoWarn>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+
+    <!-- OCR：ONNX Runtime（纯 CPU）+ PP-OCRv4 移动端模型（models 文件夹，约 16MB） -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.20.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="app.ico" LogicalName="app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="models\**" CopyToOutputDirectory="PreserveNewest" LinkBase="models" />
+    <None Include="THIRD_PARTY_NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
+    <!-- 原生 OCR 子进程（C++，见 native\README.md）：复制到输出根目录，与 onnxruntime.dll 同级 -->
+    <None Include="native\lst-ocr.exe" CopyToOutputDirectory="PreserveNewest" Link="lst-ocr.exe" />
+  </ItemGroup>
+
+</Project>
