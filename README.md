@@ -50,28 +50,6 @@ C# / .NET 8 / WinForms，托盘常驻；OCR 跑在独立的原生子进程里（
 - **OCR 模型驻留**：极致轻量（空闲 30 秒结束子进程）/ 平衡（5 分钟，默认）/ 性能优先（常驻到退出）。
 - **OCR 识别时内存**：省内存（默认）/ 平衡 / 高速。大图会按像素预算分带检测，保持原分辨率，只影响大图的速度和占用，不影响精度。
 
-## 构建、运行与打包
-
-需要：Windows 10 1607+ x64、[.NET 8 SDK](https://dotnet.microsoft.com/download)。
-
-```powershell
-cd LightShotTranslate
-dotnet run -c Release          # 开发运行（OCR 需要 native\lst-ocr.exe 和 models\，已随项目提供）
-```
-
-**打包给没有 .NET 的电脑**（需要本机已装 .NET 8 SDK、Inno Setup 6）：
-
-```powershell
-.\build_installer.bat
-```
-
-自动完成：`publish.ps1 -SelfContained`（自带 .NET 运行时 + VC++ 运行库，ReadyToRun）→ Inno Setup 编译安装包 → 生成便携 zip。
-产物在 `dist\`：`LightShotTranslate-Setup-版本.exe`（简体中文/英文向导，默认装到当前用户目录、无需管理员权限）和 `LightShotTranslate-portable-版本.zip`（免安装）。目标电脑要求 64 位 Windows 10 1607 及以上，**无需安装 .NET 或 VC++**。
-
-- VC++ 运行库（vcruntime140、vcruntime140_1、msvcp140）优先取自 Visual Studio 的 `VC\Redist\MSVC\…\x64\Microsoft.VC14*.CRT`，没有 VS 则取本机 System32；所用文件、版本与 SHA256 记录在发布目录的 `redist-manifest.txt`。
-- 只想要小体积、目标机已有 .NET 8 桌面运行时：`.\publish.ps1`（不带 `-SelfContained`）。
-- 重新编译原生 OCR 程序：见 [native/README.md](native/README.md)。
-
 ## 排错
 - OCR 报“无法加载 onnxruntime.dll”：确认 `onnxruntime.dll` 与 `lst-ocr.exe` 在程序目录，且 VC++ 运行库（vcruntime140 等）在同目录或已安装 vc_redist.x64。
 - 报“缺少 OCR 模型文件”：确认程序目录下有 `models` 文件夹（含 2 个 .onnx 和 ppocr_keys_v4.txt）。
